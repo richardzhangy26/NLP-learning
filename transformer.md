@@ -63,3 +63,86 @@ n_heads = 8  # number of heads in Multi-Head Attention
 
 
 nn.embedding(词表的大小，词的维度) 
+
+
+
+## Forword过程
+
+```
+sentences = ['ich mochte ein bier P', 'S i want a beer', 'i want a beer E']
+```
+
+sentences[0]为encoder的输入部分，sentences[1]作为decoder的输入部分，sentences[2]为outputs的监督信号，也即目标部分。
+
+首先构建词表和目标词表
+
+```
+src_vocab = {'P': 0, 'ich': 1, 'mochte': 2, 'ein': 3, 'bier': 4}
+
+tgt_vocab = {'P': 0, 'i': 1, 'want': 2, 'a': 3, 'beer': 4, 'S': 5, 'E': 6}
+```
+
+对于src_vocab指的是翻译前的词表，target_vocab为翻译后的词表
+
+make_batch函数来得到enc_inputs, dec_inputs, target_inputs这三个句子的编号
+
+如enc_inputs ={tensor([[1, 2, 3, 4, 0]])}是一个batch_size为1,序列长度为5的张量
+
+同样我们得到
+
+dec_inputs=tensor([[5, 1, 2, 3, 4]]) 
+
+target_batch=tensor([[1, 2, 3, 4, 6]])
+
+
+
+### encoder
+
+```
+enc_outputs, enc_self_attns = self.encoder(enc_inputs)#TRM
+```
+
+将enc_inputs传入encoder中
+
+我们跳转到encoder的forword部分
+
+```
+self.src_emb = nn.Embedding(src_vocab_size, d_model)
+```
+
+```
+def forward(self, enc_inputs):
+    ## 这里我们的 enc_inputs 形状是： [batch_size x source_len]
+    ## 下面这个代码通过src_emb，进行索引定位，enc_outputs输出形状是[batch_size, src_len, d_model]
+    
+    enc_outputs = self.src_emb(enc_inputs)#1x5x512
+```
+
+先对enc_outputs进行第一和第二维度的转置然后进行位置编码然后得到结果后再转置回来。
+
+```
+enc_outputs = self.pos_emb(enc_outputs.transpose(0, 1)).transpose(0, 1)
+```
+
+```
+enc_self_attn_mask = get_attn_pad_mask(enc_inputs, enc_inputs)
+```
+
+因为enc_inputs={[[1,2,3,4,0]]}对于最后一个位置填充pad信息为True，使得模型后面在计算自注意力和交互注意力的时候去掉pad符号的影响
+
+enc_self_attn_mask = tensor([[[False, False, False, False,  True],
+         [False, False, False, False,  True],
+         [False, False, False, False,  True],
+         [False, False, False, False,  True],
+         [False, False, False, False,  True]]])
+
+```
+enc_self_attns = []
+for layer in self.layers:
+    ## 去看EncoderLayer 层函数 5.
+    enc_outputs, enc_self_attn = layer(enc_outputs, enc_self_attn_mask)
+    enc_self_attns.append(enc_self_attn)
+return enc_outputs, enc_self_attns
+```
+
+self.layers相当于是重复6次编码器，enc_self_attns相当于保存了self_attention的分数。
