@@ -76,6 +76,8 @@ class MultiHeadAttention(nn.Module):
         ## 得到的结果有两个：context: [batch_size x n_heads x len_q x d_v], attn: [batch_size x n_heads x len_q x len_k]
         context, attn =ScaledDotProductAttention()(q_s, k_s, v_s, attn_mask)
         context = context.transpose(1, 2).contiguous().view(batch_size, -1, n_heads * d_v) # context: [batch_size x len_q x n_heads * d_v]
+        # contiguous()函数表示拷贝tensor但不改变原tensor
+
         output = self.linear(context)
         return self.layer_norm(output + residual), attn # output: [batch_size x len_q x d_model]
 
