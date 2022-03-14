@@ -1,15 +1,15 @@
 # 多头注意力机制
 
-![image-20220218162310399](https://cdn.jsdelivr.net/gh/richardzhangy26/Pic/main/img/image-20220218162310399.png)
+![image-20220218162310399](https://cdn.jsdelivr.net/gh/richardzhangy26/Pic@master//img/image-20220218162310399.png)
 
 实际代码使用矩阵，方便并行
 
 1. 绿色一行代表一个词的向量
 2. dk表示k的维度，除以根号dk是为了降低softmax的值，方便梯度下降
 
-![](https://cdn.jsdelivr.net/gh/richardzhangy26/Pic/main/img/image-20220218162925410.png)
+![](https://cdn.jsdelivr.net/gh/richardzhangy26/Pic@master//img/image-20220218162925410.png)
 
-![image-20220218163011792](https://cdn.jsdelivr.net/gh/richardzhangy26/Pic/main/img/image-20220218163011792.png)
+![image-20220218163011792](https://cdn.jsdelivr.net/gh/richardzhangy26/Pic@master//img/image-20220218163011792.png)
 
 # 残差和layNorm
 
@@ -23,7 +23,7 @@
 
 
 
-<img src="https://cdn.jsdelivr.net/gh/richardzhangy26/Pic/main/img/image-20220220183929908.png" alt="image-20220220183929908"  />
+<img src="https://cdn.jsdelivr.net/gh/richardzhangy26/Pic@master//img/image-20220220183929908.png" alt="image-20220220183929908"  />
 
 1. 从整体网路结构来看，分为三个部分：编码层，解码层，输出层
 
@@ -146,7 +146,6 @@ return enc_outputs, enc_self_attns
 ```
 
 self.layers相当于是重复6次编码器，enc_self_attns相当于保存了self_attention的分数。
-
 
 
 
